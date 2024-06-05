@@ -53,7 +53,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DDYNOHOOK_VERSION="${{ needs.setup.outputs.buildnumber }}" -DDYNOHOOK_PACKAGE="dynohook-build-${{ needs.setup.outputs.buildnumber }}-windows-${{ env.GITHUB_SHA_SHORT }}" ..
+          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DDYNOHOOK_VERSION="${{ needs.setup.outputs.buildnumber }}" -DDYNOHOOK_PACKAGE="dynohook-build-${{ needs.setup.outputs.buildnumber }}-${{ env.GITHUB_SHA_SHORT }}" ..
           cmake --build . --target dyno --config ${{ env.BUILD_TYPE }} -- /m:16
 
       - name: Clean build directory
@@ -83,7 +83,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DDYNOHOOK_VERSION="${{ needs.setup.outputs.buildnumber }}" -DDYNOHOOK_PACKAGE="dynohook-build-${{ needs.setup.outputs.buildnumber }}-linux-${{ env.GITHUB_SHA_SHORT }}" ..
+          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DDYNOHOOK_VERSION="${{ needs.setup.outputs.buildnumber }}" -DDYNOHOOK_PACKAGE="dynohook-build-${{ needs.setup.outputs.buildnumber }}-${{ env.GITHUB_SHA_SHORT }}" ..
           cmake --build . --target dyno --config ${{ env.BUILD_TYPE }} -- -j16
 
       - name: Clean build directory
@@ -114,17 +114,16 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: dynohook-build-windows-${{ env.GITHUB_SHA_SHORT }}
-          path: build/windows
+          path: build/output
 
       - uses: actions/download-artifact@v3
         with:
           name: dynohook-build-linux-${{ env.GITHUB_SHA_SHORT }}
-          path: build/linux
+          path: build/output
 
       - name: Zip Builds
         run: |
-          (cd build/linux && zip -qq -r ../../dynohook-build-${{ env.BUILD_NUMBER }}-linux-${{ env.GITHUB_SHA_SHORT }}.zip *)
-          (cd build/windows && zip -qq -r ../../dynohook-build-${{ env.BUILD_NUMBER }}-windows-${{ env.GITHUB_SHA_SHORT }}.zip *)
+          (cd build/output && zip -qq -r ../../dynohook-build-${{ env.BUILD_NUMBER }}-${{ env.GITHUB_SHA_SHORT }}.zip *)
 
       - name: Release
         id: release
@@ -132,8 +131,7 @@ jobs:
         with:
           tag_name: v${{ env.BUILD_NUMBER }}
           files: |
-            dynohook-build-${{ env.BUILD_NUMBER }}-windows-${{ env.GITHUB_SHA_SHORT }}.zip
-            dynohook-build-${{ env.BUILD_NUMBER }}-linux-${{ env.GITHUB_SHA_SHORT }}.zip
+            dynohook-build-${{ env.BUILD_NUMBER }}-${{ env.GITHUB_SHA_SHORT }}.zip
 
       - name: Send Notification to Discord
         env:
